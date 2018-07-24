@@ -1,8 +1,8 @@
 #!/bin/bash
 
-ERROR=$(echo -e "[\033[31m*\033[0m]")
-WARN=$(echo -e "[\033[33m*\033[0m]")
-SUCCESS=$(echo -e "[\033[32m*\033[0m]")
+ERROR=$(echo -en '\033[00;31m hello\e[0m')
+WARN=$(echo -en '\033[00;33m')
+SUCCESS=$(echo -en '\033[00;32m')
 
 function help(){
     echo "civmpx - Create VM from cloud images on Proxmox";
@@ -14,7 +14,7 @@ function help(){
     echo "-p : Path to the cloud image file. Required.";
     exit 1;
 }
-
+echo -e "[\033[31m*\033[0m]"
 # If no options provided, show help
 if [ $# -eq 0 ];
 then
