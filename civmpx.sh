@@ -50,8 +50,14 @@ done
 apt-get update -qq 2> /dev/null
 # Check if cloud-init is installed
 echo "$INFO Check if cloud-init is installed"
-if [ -x "$(command -v cloud-init)" ]; then
-    echo "$WARN cloud-init not installed, trying to install"
+if [ ! -x "$(command -v cloud-init)" ]; then
+    echo "$WARN Not installed, trying to install"
     apt-get update -qq 2> /dev/null
+    apt install -qq -y cloud-init 2> /dev/null
+    if [ ! -x "$(command -v cloud-init)" ]; then
+        
+    fi
+else
+    echo "$SUCCESS Ok"
 fi
 
