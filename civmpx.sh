@@ -3,6 +3,7 @@
 ERROR=$(echo -e "[\033[31m*\033[0m]")
 WARN=$(echo -e "[\033[33m*\033[0m]")
 SUCCESS=$(echo -e "[\033[32m*\033[0m]")
+INFO=$(echo -e "[*]")
 
 function help(){
     echo "civmpx - Create VM from cloud images on Proxmox";
@@ -46,5 +47,11 @@ while getopts ":i:p:" option; do
     esac
 done
 
-
+apt-get update -qq 2> /dev/null
+# Check if cloud-init is installed
+echo "$INFO Check if cloud-init is installed"
+if [ -x "$(command -v cloud-init)" ]; then
+    echo "$WARN cloud-init not installed, trying to install"
+    apt-get update -qq 2> /dev/null
+fi
 
