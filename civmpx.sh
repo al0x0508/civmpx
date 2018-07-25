@@ -34,13 +34,16 @@ while getopts ":i:p:" option; do
         i)
             vmid=${OPTARG}
             if ! [ "$vmid" -eq "$vmid" ] 2> /dev/null; then
-    			echo "vmid is missing or not an integer"
-			fi
+    			error_exit "vmid is missing or not an integer"
+            fi
+            if [ "$vmid" -lt "100" ]; then
+                error_exit "Please provide vmid greater than 100"
+            fi
             ;;
         p)
             imagepath=${OPTARG}
             if [ ! -f "$imagepath" ]; then
-                echo "$imagepath not found"
+                error_exit "$imagepath not found"
             fi
             ;;
         *)
@@ -68,5 +71,4 @@ fi
 
 # Create VM
 echo "$INFO Creating VM"
-qm create $vmid && echo "$SUCCESS Ok" || error_exit "Failed to create VM"
-
+qm create $vmid &> /dev/null && echo "$SUCCESS Ok" || error_exit "Failed to create VM"
