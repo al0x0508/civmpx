@@ -5,6 +5,15 @@ WARN=$(echo -e "[\033[33m*\033[0m]")
 SUCCESS=$(echo -e "[\033[32m*\033[0m]")
 INFO=$(echo -e "[*]")
 
+# Default VM properties
+CORES="1" # (1 - N) (default = 1)
+SOCKETS="1" # (1 - N) (default = 1)
+MEMORY="2048" # (16 - N) (default = 512)
+NET0="virtio,bridge=vmbr2" # [model=]<enum> [,bridge=<bridge>] [,firewall=<1|0>] [,link_down=<1|0>] [,macaddr=<XX:XX:XX:XX:XX:XX>] [,queues=<integer>] [,rate=<number>] [,tag=<integer>] [,trunks=<vlanid[;vlanid...]>] [,<model>=<macaddr>]
+STORAGE="local"
+#IDE2="$STORAGE:cloudinit"
+#BOOTDISK="scsi0" # (ide|sata|scsi|virtio)
+
 function error_exit {
     echo "$1" >&2   ## Send message to stderr. Exclude >&2 if you don't want it that way.
     exit "${2:-1}"  ## Return a code specified by $2 or 1 by default.
@@ -66,9 +75,15 @@ if [ ! -x "$(command -v cloud-init)" ]; then
       exit 1
     fi
 else
-    echo "$SUCCESS Ok"
+    echo "$SUCCESS OK"
 fi
 
 # Create VM
 echo "$INFO Creating VM"
-qm create $vmid &> /dev/null && echo "$SUCCESS Ok" || error_exit "Failed to create VM"
+qm create $vmid --cores $CORES --sockets $SOCKETS --memory $MEMORY --net0 $NET0 &> /dev/null && echo "$SUCCESS OK" || error_exit "Failed to create VM. Aborting"
+
+# Import image to storage
+echo "Importing image to VM storage"
+qm importdisk $vmid $imagepath $STORAGE &> /dev/null && echo "$SUCCESS OK" || error_exit "Failed to import storage. Aborting.."
+
+
