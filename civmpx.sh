@@ -83,7 +83,23 @@ echo "$INFO Creating VM"
 qm create $vmid --cores $CORES --sockets $SOCKETS --memory $MEMORY --net0 $NET0 &> /dev/null && echo "$SUCCESS OK" || error_exit "Failed to create VM. Aborting"
 
 # Import image to storage
-echo "Importing image to VM storage"
-qm importdisk $vmid $imagepath $STORAGE &> /dev/null && echo "$SUCCESS OK" || error_exit "Failed to import storage. Aborting.."
+echo "$INFO Importing image to VM storage"
+qm importdisk $vmid $imagepath $STORAGE &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed to import storage. Aborting.."
 
+# Attach the new disk to the VM
+echo "$INFO Attaching image to VM storage"
+qm set $vmid --scsihw virtio-scsi-pci --scsi0 ${STORAGE}:${vmid}/vm-${vmid}-disk-1.raw &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed. Aborting.."
+
+# Create cloud init drive
+echo "$INFO Creating Cloudinit CDROM"
+qm set $vmid --ide2 $STORAGE:cloudinit &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed. Aborting.."
+
+echo "$INFO Force boot to disk"
+qm set $vmid --boot c --bootdisk scsi0  &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed. Aborting.."
+
+echo "$INFO Add serial and vga"
+qm set $vmid --serial0 socket --vga serial0 &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed. Aborting.."
+
+echo "$INFO Creating Template"
+qm template $vmid  &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed. Aborting.."
 
