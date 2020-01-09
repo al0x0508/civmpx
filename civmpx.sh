@@ -88,7 +88,7 @@ qm importdisk $vmid $imagepath $STORAGE &> /dev/null && echo "$SUCCESS OK" || er
 
 # Attach the new disk to the VM
 echo "$INFO Attaching image to VM storage"
-qm set $vmid --scsihw virtio-scsi-pci --scsi0 ${STORAGE}:${vmid}/vm-${vmid}-disk-1.raw &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed. Aborting.."
+qm set $vmid --scsihw virtio-scsi-pci --scsi0 ${STORAGE}:${vmid}/vm-${vmid}-disk-0.raw &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed. Aborting.."
 
 # Create cloud init drive
 echo "$INFO Creating Cloudinit CDROM"
