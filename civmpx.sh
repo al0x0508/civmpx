@@ -9,7 +9,7 @@ INFO=$(echo -e "[*]")
 CORES="1" # (1 - N) (default = 1)
 SOCKETS="1" # (1 - N) (default = 1)
 MEMORY="2048" # (16 - N) (default = 512)
-NET0="virtio,bridge=vmbr2" # [model=]<enum> [,bridge=<bridge>] [,firewall=<1|0>] [,link_down=<1|0>] [,macaddr=<XX:XX:XX:XX:XX:XX>] [,queues=<integer>] [,rate=<number>] [,tag=<integer>] [,trunks=<vlanid[;vlanid...]>] [,<model>=<macaddr>]
+NET0="virtio,bridge=vmbr0" # [model=]<enum> [,bridge=<bridge>] [,firewall=<1|0>] [,link_down=<1|0>] [,macaddr=<XX:XX:XX:XX:XX:XX>] [,queues=<integer>] [,rate=<number>] [,tag=<integer>] [,trunks=<vlanid[;vlanid...]>] [,<model>=<macaddr>]
 STORAGE="local"
 #IDE2="$STORAGE:cloudinit"
 #BOOTDISK="scsi0" # (ide|sata|scsi|virtio)
@@ -84,11 +84,11 @@ qm create $vmid --cores $CORES --sockets $SOCKETS --memory $MEMORY --net0 $NET0 
 
 # Import image to storage
 echo "$INFO Importing image to VM storage"
-qm importdisk $vmid $imagepath $STORAGE &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed to import storage. Aborting.."
+qm importdisk $vmid $imagepath $STORAGE --format qcow2 &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed to import storage. Aborting.."
 
 # Attach the new disk to the VM
 echo "$INFO Attaching image to VM storage"
-qm set $vmid --scsihw virtio-scsi-pci --scsi0 ${STORAGE}:${vmid}/vm-${vmid}-disk-0.raw &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed. Aborting.."
+qm set $vmid --scsihw virtio-scsi-pci --scsi0 ${STORAGE}:${vmid}/vm-${vmid}-disk-0.qcow2 &> /dev/null && echo "$SUCCESS OK" || error_exit "$ERROR Failed. Aborting.."
 
 # Create cloud init drive
 echo "$INFO Creating Cloudinit CDROM"
